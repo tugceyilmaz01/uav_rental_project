@@ -1,0 +1,69 @@
+{% extends 'blank.html' %}
+{% block content %}
+    <div class="container-fluid">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Dokümantasyon</h6>
+            </div>
+            <div class="card-body">
+                <p> Proje adımları : </p>
+                <ul>
+                    <li><em>uav_rental_project</em> adında yeni bir django projesi oluşturuldu.</li>
+                    <li>Projeye <em>rentals</em> adında bir app eklendi.</li>
+                    <li><em>requirements.txt</em> dosyası eklendi ve paketler bu dosya ile kuruldu.</li>
+                    <li><em>settings.py</em> dosyasında <i>INSTALLED_APPS</i> güncellendi.
+                        Proje için oluşturulan app ve kullanılan paketler eklendi.
+                    </li>
+                    <li>Frontend için hazır bir template kullanıldı. Bu template için static dosyalar (js, css) eklendi
+                        .
+                    </li>
+                    <br>
+                    <li>Proje için 4 ayrı model oluşturuldu.</li>
+                    <li>Brand -> UAV'i üreten firma olarak tasarlandı. Bu sayede projede tek bir markanın değil de
+                        farklı markalarında uav'leri kiralanabilir olarak tasarlandı.
+                    </li>
+                    <li>Category -> UAV'inin ait olduğu kategori olarak tasarlandı.Bu sayede statik değerler
+                        vermektense dışarıdan da yönetilebilir (dinamik) hale geldi.
+                    </li>
+                    <li>UAV -> Bir markanın birden fazla uav'si olabilir veya bir kategoriye ait birden fazla uav
+                        olabilir düşüncesi ile brand ve category alanları ilişkisel olarak (One-to-Many Relation) UAV
+                        modeline bağlandı.
+                    </li>
+                    <li>Rentals -> Her bir uav kiralama kaydı olarak tasarlandı.</li>
+                    <br>
+                    <li><em>rentals</em> app'i içinde yukarıdaki modeller için rest api servisleri oluşturuldu.</li>
+                    <li>REST API endpointleri aşağıdaki gibi :</li>
+                    <ul>
+                        <li>/api/brands/</li>
+                        <li>/api/brands/pk/</li>
+                        <li>/api/categories/</li>
+                        <li>/api/categories/pk/</li>
+                        <li>/api/uavs/</li>
+                        <li>/api/uavs/pk/</li>
+                        <li>/api/rentals/</li>
+                        <li>/api/rentals/pk/</li>
+                    </ul>
+                    <li>Bu servislerin detaylarına <em>rentals</em> -> <em>views.py</em> dosyasından bakılabilir.</li>
+                    <li>Servisler için filtreleme ve sayfalama eklendi.</li>
+                    <li>Servislerdeki <em>GET</em>, <em>RETRIEVE</em>, <em>CREATE</em>, <em>PATCH</em>, <em>DELETE</em>
+                        işlemleri için testler eklendi.
+                    </li>
+                    <br>
+                    <li>Frontend tarafında ise html'i render edebilmek için yeni endpointler eklendi ama
+                        sayfalardaki veri yukarıdaki rest servisleri kullanılarak dinamik bir şekilde oluşturuldu.
+                    </li>
+                </ul>
+                <br>
+                <p>Projede ekli olmayan kısımlar</p>
+                <ul>
+                    <li>Frontend tarafında ekleme (create), listeleme (get), silme (delete) işlemleri yapılıyor ama
+                        edit yapılamıyor. FE tarafında çözemediğim bir hatadan dolayı ekleyemedim.
+                    </li>
+                    <li>user login ve register</li>
+                    <li>postgresql db bağlantısı</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

@@ -1,0 +1,49 @@
+{% extends 'blank.html' %}
+{% block content %}
+    <div class="container-fluid">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">{% if id %}Category Detail{% else %}New
+                    Category{% endif %}</h6>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label for="exampleInputEmail1" class="form-label">Name</label>
+                    <input type="email" class="form-control" id="name">
+                </div>
+                <div class="mb-3 form-check">
+                    <input type="checkbox" class="form-check-input" id="isActive" checked>
+                    <label class="form-check-label">Is Active</label>
+                </div>
+                <button type="button" class="btn btn-primary" id="addNewCategory">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $("#addNewCategory").click(function () {
+            // Data to be sent in the request (replace this with your data)
+            var data = {
+                name: $("#name").val(),
+                is_active: $("#isActive").prop("checked")
+            };
+
+            $.ajax({
+                url: '{% url 'category-list' %}',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(data),
+                success: function (response) {
+                    alert('Category saved successfully...')
+                    window.location.href = '{% url 'category_list_page' %}';
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error sending POST request:', error);
+                }
+            });
+        });
+    </script>
+{% endblock %}
+
+

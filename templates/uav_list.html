@@ -1,0 +1,217 @@
+{% extends 'blank.html' %}
+{% block content %}
+
+    <div class="container-fluid">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">UAVs</h6>
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                    <a href="{% url 'uav_detail_page' %}" target="_blank" style="margin-right: 30px">Rent UAV</a>
+                    <a href="{% url 'uav_detail_page' %}" target="_blank">Add UAV</a>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <div class="row">
+                        <div class="col-sm-2 col-md-3">
+                            <label for="">Brand Filter</label>
+                            <select class="form-select" id="filterByBrand"></select>
+                        </div>
+                        <div class="col-sm-2 col-md-3">
+                            <label for="">Category Filter</label>
+                            <select class="form-select" id="filterByCategory"></select>
+                        </div>
+                        <div class="col-sm-6 col-md-6">
+                            <label for="">Model Filter</label>
+                            <input type="text" class="form-control form-control-sm" id="filterByModel">
+                        </div>
+                    </div>
+                    <br>
+                    <div class="row ">
+                        <div class="col-sm-12">
+                            <table class="table table-bordered" style="width: 100%;" id="uavs-table">
+                                <thead>
+                                <tr role="row">
+                                    <th>ID</th>
+                                    <th>Brand</th>
+                                    <th>Category</th>
+                                    <th>Model</th>
+                                    <th>Weight</th>
+                                    <th>Is Active</th>
+                                    <th>Actions</th>
+                                </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+
+        $(document).ready(function () {
+            // send AJAX request when the page is open
+            var listUrl = '{% url 'uav-list' %}';
+            reloadData(listUrl)
+            getBrands();
+            getCategories();
+        });
+
+
+        function reloadData(url) {
+            $.ajax({
+                url: url,
+                type: 'GET',
+                dataType: 'json',
+                success: function (data) {
+
+                    // find table object
+                    var tableBody = $('#uavs-table tbody');
+
+                    // first clear data
+                    tableBody.empty();
+
+                    // then fill the table with response data
+                    $.each(data['results'], function (index, uav) {
+                        var text = uav.is_active ? "Yes" : "No";
+                        tableBody.append('<tr>' +
+                            '<td>' + uav.id + '</td>' +
+                            '<td>' + uav.brand + '</td>' +
+                            '<td>' + uav.category + '</td>' +
+                            '<td>' + uav.model + '</td>' +
+                            '<td>' + uav.weight + '</td>' +
+                            '<td>' + text + '</td>' +
+                            '<td>' +
+                            '<a class="btn btn-danger" onclick="deleteUAV(' + uav.id + ')">' +
+                            '<i class="fas fa-trash"></i></a>' +
+                            '</td>' +
+                            '</tr>');
+                    });
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error:', error);
+                }
+            });
+
+        }
+
+        function getBrands() {
+            $.ajax({
+                url: '{% url 'brand-list' %}',
+                type: 'GET',
+                dataType: 'json',
+                success: function (data) {
+                    // find the object
+                    var selectElement = $('#filterByBrand');
+
+                    //clear data
+                    selectElement.empty();
+                    selectElement.append($('<option selected value="">None Selected</option>'))
+
+                    //then fill the object
+                    $.each(data['results'], function (index, brand) {
+                        selectElement.append($('<option></option>').attr('value', brand.id).text(brand.name));
+                    });
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error:', error);
+                }
+            });
+        }
+
+        function getCategories() {
+            $.ajax({
+                url: '{% url 'category-list' %}',
+                type: 'GET',
+                dataType: 'json',
+                success: function (data) {
+                    // find the object
+                    var selectElement = $('#filterByCategory');
+
+                    //clear data
+                    selectElement.empty();
+                    selectElement.append($('<option selected value="">None Selected</option>'))
+
+                    //then fill the object
+                    $.each(data['results'], function (index, category) {
+                        selectElement.append($('<option></option>').attr('value', category.id).text(category.name));
+                    });
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error:', error);
+                }
+            });
+        }
+
+        // filter options
+        $('#filterByBrand').change(function () {
+            var url = '{% url 'uav-list' %}' + '?brand=' + $(this).val();
+
+            var categoryValue = $('#filterByCategory option:selected').val();
+            if (categoryValue)
+                url += '&category=' + categoryValue;
+
+            var modelValue = $('#filterByModel').val();
+            if (modelValue)
+                url += '&model=' + modelValue;
+
+            reloadData(url)
+
+        })
+
+        $('#filterByCategory').change(function () {
+            var url = '{% url 'uav-list' %}' + '?category=' + $(this).val();
+
+            var brandValue = $('#filterByBrand option:selected').val();
+            if (brandValue)
+                url += '&brand=' + brandValue;
+
+            var modelValue = $('#filterByModel').val();
+            if (modelValue)
+                url += '&model=' + modelValue;
+
+            reloadData(url)
+
+        })
+
+        $('#filterByModel').blur(function () {
+            var url = '{% url 'uav-list' %}' + '?model=' + $(this).val();
+
+            var brandValue = $('#filterByBrand option:selected').val();
+            if (brandValue)
+                url += '&brand=' + brandValue;
+
+            var categoryValue = $('#filterByCategory option:selected').val();
+            if (categoryValue)
+                url += '&category=' + categoryValue;
+
+            reloadData(url)
+
+        })
+
+        function deleteUAV(id) {
+            var deleteUrl = '{% url 'uav-list' %}';
+            deleteUrl += id;
+
+            $.ajax({
+                url: deleteUrl,
+                type: 'DELETE',
+                success: function (data) {
+                    alert('UAV deleted successfully... ');
+                    reloadData('{% url 'uav-list' %}')
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error:', error);
+                }
+            });
+        }
+
+
+    </script>
+{% endblock %}
+
+

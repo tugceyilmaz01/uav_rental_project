@@ -1,0 +1,115 @@
+{% extends 'blank.html' %}
+{% block content %}
+    <div class="container-fluid">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">New UAV</h6>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label class="form-label">Brand</label><br>
+                    <select class="form-select" id="uavBrand"></select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Category</label><br>
+                    <select class="form-select" id="uavCategory"></select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Model</label>
+                    <input type="text" class="form-control" id="model">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Weight</label>
+                    <input type="number" class="form-control" id="weight">
+                </div>
+                <div class="mb-3 form-check">
+                    <input type="checkbox" class="form-check-input" id="uavIsActive" checked>
+                    <label class="form-check-label">Is Active</label>
+                </div>
+                <button type="button" class="btn btn-primary" id="addNewUAV">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+
+        $(document).ready(function () {
+            getBrands();
+            getCategories();
+        })
+
+        function getBrands() {
+            $.ajax({
+                url: '{% url 'brand-list' %}',
+                type: 'GET',
+                dataType: 'json',
+                success: function (data) {
+                    // find the object
+                    var selectElement = $('#uavBrand');
+
+                    //clear data
+                    selectElement.empty();
+
+                    //then fill the object
+                    $.each(data['results'], function (index, brand) {
+                        selectElement.append($('<option></option>').attr('value', brand.id).text(brand.name));
+                    });
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error:', error);
+                }
+            });
+        }
+
+        function getCategories() {
+            $.ajax({
+                url: '{% url 'category-list' %}',
+                type: 'GET',
+                dataType: 'json',
+                success: function (data) {
+                    // find the object
+                    var selectElement = $('#uavCategory');
+
+                    //clear data
+                    selectElement.empty();
+
+                    //then fill the object
+                    $.each(data['results'], function (index, category) {
+                        selectElement.append($('<option></option>').attr('value', category.id).text(category.name));
+                    });
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error:', error);
+                }
+            });
+        }
+
+        $("#addNewUAV").click(function () {
+            // Data to be sent in the request (replace this with your data)
+            var data = {
+                brand: $('#uavBrand option:selected').val(),
+                category: $('#uavCategory option:selected').val(),
+                model: $("#model").val(),
+                weight: $("#weight").val(),
+                is_active: $("#uavIsActive").prop("checked")
+            };
+
+            $.ajax({
+                url: '{% url 'uav-list' %}',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(data),
+                success: function (response) {
+                    alert('UAV saved successfully...')
+                    window.location.href = '{% url 'uav_list_page' %}';
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error sending POST request:', error);
+                }
+            });
+        });
+    </script>
+{% endblock %}
+
+

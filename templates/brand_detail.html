@@ -1,0 +1,48 @@
+{% extends 'blank.html' %}
+{% block content %}
+    <div class="container-fluid">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">New Brand</h6>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label class="form-label">Name</label>
+                    <input type="text" class="form-control" id="name">
+                </div>
+                <div class="mb-3 form-check">
+                    <input type="checkbox" class="form-check-input" id="isActive" checked>
+                    <label class="form-check-label">Is Active</label>
+                </div>
+                <button type="button" class="btn btn-primary" id="addNewBrand">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $("#addNewBrand").click(function () {
+            // data to be sent in the request
+            var data = {
+                name: $("#name").val(),
+                is_active: $("#isActive").prop("checked")
+            };
+
+            $.ajax({
+                url: '{% url 'brand-list' %}',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(data),
+                success: function (response) {
+                    alert('Brand saved successfully...')
+                    window.location.href = '{% url 'brand_list_page' %}';
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error sending POST request:', error);
+                }
+            });
+        });
+    </script>
+{% endblock %}
+
+

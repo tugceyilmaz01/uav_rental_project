@@ -1,0 +1,92 @@
+{% extends 'blank.html' %}
+{% block content %}
+    <div class="container-fluid">
+        <input type="hidden" name="csrfmiddlewaretoken" value=""/>
+
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">New Rental</h6>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label class="form-label">UAV</label><br>
+                    <select class="form-select" id="rentalUAV"></select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Username</label><br>
+                    <select class="form-select" id="user">
+                        {% for user in users %}
+                            <option value="{{ user.id }}">{{ user.username }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Rental Start Date</label>
+                    <input type="date" class="form-control" id="rentalStartDate">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Rental End Date</label>
+                    <input type="date" class="form-control" id="rentalEndDate">
+                </div>
+                <button type="button" class="btn btn-primary" id="addNewRental">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+
+        $(document).ready(function () {
+            getUAVs();
+        })
+
+        function getUAVs() {
+            $.ajax({
+                url: '{% url 'uav-list' %}',
+                type: 'GET',
+                dataType: 'json',
+                success: function (data) {
+                    // find the object
+                    var selectElement = $('#rentalUAV');
+
+                    //clear data
+                    selectElement.empty();
+
+                    //then fill the object
+                    $.each(data['results'], function (index, uav) {
+                        selectElement.append($('<option></option>').attr('value', uav.id).text(uav.model));
+                    });
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error:', error);
+                }
+            });
+        }
+
+        $("#addNewRental").click(function () {
+
+            // Data to be sent in the request
+            var data = {
+                uav: $('#rentalUAV option:selected').val(),
+                user: $('#user option:selected').val(),
+                rental_start_date: $("#rentalStartDate").val(),
+                rental_end_date: $("#rentalEndDate").val()
+            };
+
+            $.ajax({
+                url: '{% url 'rental-list' %}',
+                type: 'POST',
+                data: data,
+                success: function (response) {
+                    alert('Rental saved successfully...')
+                    window.location.href = '{% url 'rental_list_page' %}';
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error sending POST request:', error);
+                }
+            });
+        });
+    </script>
+{% endblock %}
+
+

@@ -1,0 +1,134 @@
+{% extends 'blank.html' %}
+{% block content %}
+
+    <div class="container-fluid">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Brands</h6>
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                    <a href="{% url 'brand_detail_page' %}" target="_blank">Add Brand</a>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <div class="row">
+                        <div class="col-sm-6 col-md-6">
+                            <label for="">Name Filter</label>
+                            <input type="text" class="form-control form-control-sm" id="filterByName">
+                        </div>
+                        <div class="col-sm-2 col-md-3">
+                            <label for="">Is Active Filter</label>
+                            <select class="form-select" id="filterByIsActive">
+                                <option selected value="">None Selected</option>
+                                <option value="true">Yes</option>
+                                <option value="false">No</option>
+                            </select>
+                        </div>
+                    </div>
+                    <br>
+                    <div class="row ">
+                        <div class="col-sm-12">
+                            <table class="table table-bordered" style="width: 100%;" id="brands-table">
+                                <thead>
+                                <tr role="row">
+                                    <th>ID</th>
+                                    <th>Name</th>
+                                    <th>Is Active</th>
+                                    <th>Created Date</th>
+                                    <th>Updated Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+
+        $(document).ready(function () {
+            // send AJAX request when the page is open
+            var listUrl = '{% url 'brand-list' %}';
+            reloadData(listUrl)
+        });
+
+
+        function reloadData(url) {
+            // load data dynamically --used api services
+            $.ajax({
+                url: url,
+                type: 'GET',
+                dataType: 'json',
+                success: function (data) {
+
+                    // find table object
+                    var tableBody = $('#brands-table tbody');
+
+                    // first clear data
+                    tableBody.empty();
+
+                    // then fill the table with response data
+                    $.each(data['results'], function (index, brand) {
+                        var text = brand.is_active ? "Yes" : "No";
+                        tableBody.append('<tr>' +
+                            '<td>' + brand.id + '</td>' +
+                            '<td>' + brand.name + '</td>' +
+                            '<td>' + text + '</td>' +
+                            '<td>' + formatDate(brand.created_date) + '</td>' +
+                            '<td>' + formatDate(brand.updated_date) + '</td>' +
+                            '<td>' +
+                            '<a class="btn btn-danger" onclick="deleteBrand(' + brand.id + ')">' +
+                            '<i class="fas fa-trash"></i></a>' +
+                            '</td>' +
+                            '</tr>');
+                    });
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error:', error);
+                }
+            });
+        }
+
+        // filter action
+        $('#filterByName').blur(function () {
+            var url = '{% url 'brand-list' %}' + '?name=' + $(this).val();
+            url += '&is_active=' + $('#filterByIsActive option:selected').val();
+
+            reloadData(url)
+
+        })
+
+        $('#filterByIsActive').change(function () {
+            var url = '{% url 'brand-list' %}' + '?is_active=' + $(this).val();
+            url += '&name=' + $('#filterByName').val();
+
+            reloadData(url)
+
+        })
+
+        // delete action
+        function deleteBrand(id) {
+            var deleteUrl = '{% url 'brand-list' %}';
+            deleteUrl += id;
+
+            $.ajax({
+                url: deleteUrl,
+                type: 'DELETE',
+                success: function (data) {
+                    alert('Brand deleted successfully... ');
+                    reloadData('{% url 'brand-list' %}')
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error:', error);
+                }
+            });
+        }
+    </script>
+{% endblock %}
+
+
